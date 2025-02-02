@@ -1,3 +1,4 @@
+// INR to USD Currency Converter with Real-time Exchange Rates
 import React, { useState, useEffect } from 'react';
 import {
   Container,
@@ -26,10 +27,12 @@ const Converter = () => {
   const fetchExchangeRate = async () => {
     setLoading(true);
     try {
+      console.log('Fetching with key:', process.env.REACT_APP_EXCHANGE_RATE_API_KEY ? 'Key exists' : 'No key found');
       const response = await fetch(
         `https://v6.exchangerate-api.com/v6/${process.env.REACT_APP_EXCHANGE_RATE_API_KEY}/latest/INR`
       );
       const data = await response.json();
+      console.log('API Response:', data);
       if (data.result === 'success') {
         setExchangeRate(data.conversion_rates.USD);
         setError(null);
@@ -37,7 +40,7 @@ const Converter = () => {
         throw new Error('Failed to fetch rate');
       }
     } catch (err) {
-      console.error('Error fetching rate:', err);
+      console.error('Error details:', err);
       setError('Failed to fetch exchange rate. Using fallback rate of 1/82');
       setExchangeRate(1/82);
     } finally {
