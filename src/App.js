@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Container,
   Typography,
@@ -15,8 +15,35 @@ const Converter = () => {
   const [amount, setAmount] = useState('');
   const [currencyType, setCurrencyType] = useState('lakhs');
   const [convertedAmount, setConvertedAmount] = useState(null);
+  const [exchangeRate, setExchangeRate] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const rupeeToUsdRate = 82;
+  useEffect(() => {
+    fetchExchangeRate();
+  }, []);
+
+  const fetchExchangeRate = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(
+        `https://v6.exchangerate-api.com/v6/${process.env.REACT_APP_EXCHANGE_RATE_API_KEY}/latest/INR`
+      );
+      const data = await response.json();
+      if (data.result === 'success') {
+        setExchangeRate(data.conversion_rates.USD);
+        setError(null);
+      } else {
+        throw new Error('Failed to fetch rate');
+      }
+    } catch (err) {
+      console.error('Error fetching rate:', err);
+      setError('Failed to fetch exchange rate. Using fallback rate of 1/82');
+      setExchangeRate(1/82);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const convertCurrency = () => {
     const amountNum = parseFloat(amount);
@@ -28,13 +55,13 @@ const Converter = () => {
     let result = 0;
     switch (currencyType) {
       case 'rupees':
-        result = amountNum / rupeeToUsdRate;
+        result = amountNum * exchangeRate;
         break;
       case 'lakhs':
-        result = (amountNum * 100000) / rupeeToUsdRate;
+        result = (amountNum * 100000) * exchangeRate;
         break;
       case 'crores':
-        result = (amountNum * 10000000) / rupeeToUsdRate;
+        result = (amountNum * 10000000) * exchangeRate;
         break;
       default:
         alert('Invalid currency type selected.');
@@ -46,13 +73,24 @@ const Converter = () => {
   return (
     <Box
       sx={{
-        backgroundColor: '#f0f8ff', // Full background color across the viewport
+        backgroundColor: '#f0f8ff',
         minHeight: '100vh',
         display: 'flex',
+        flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
       }}
     >
+      {loading && (
+        <Typography variant="body2" sx={{ mb: 2 }}>
+          Fetching latest exchange rate...
+        </Typography>
+      )}
+      {error && (
+        <Typography variant="body2" color="error" sx={{ mb: 2 }}>
+          {error}
+        </Typography>
+      )}
       <Container
         maxWidth="xs"
         sx={{
@@ -111,7 +149,7 @@ const Converter = () => {
           variant="contained"
           onClick={convertCurrency}
           sx={{
-            background: 'linear-gradient(135deg, #dceeff, #b0d5ff)', // Gradient from light to more intense Alice Blue
+            background: 'linear-gradient(135deg, #dceeff, #b0d5ff)',
             color: '#333',
             boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
             borderRadius: 4,
@@ -133,6 +171,19 @@ const Converter = () => {
           </Typography>
         )}
       </Container>
+      
+      {exchangeRate && (
+        <Typography 
+          variant="body2" 
+          sx={{ 
+            mt: 2, 
+            color: '#666666',
+            fontSize: '0.875rem'
+          }}
+        >
+          Exchange rate used is {(1/exchangeRate).toFixed(2)} INR to 1 USD. Current as of {new Date().toLocaleString()}
+        </Typography>
+      )}
     </Box>
   );
 };
