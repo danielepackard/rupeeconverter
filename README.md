@@ -1,10 +1,27 @@
-# Getting Started with Create React App
+
+# RupeeConverter
+
+This was a simple exercise to create a react app exclusively with AI tools.
+
+Initial version with ChatGPT
+
+Then I’ve been using Cursor (coding editor which in turn can use Claude or ChatGPT APIs) to augment. Initially hard coded exchange rate now calling to a free API in order to get live exchange rate (which is then displayed).
+
+You can check out the app at:
+
+https://rupeeconverter.danielepackard.com/
+
+## Requirements:
+
+- `npm` 
+- `react-scripts`, installed with `npm i react-scripts`
+- `XXX` for the Fx feed
+
+## Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## Available Scripts
-
-In the project directory, you can run:
+**Available Scripts:**  in the project directory, you can run:
 
 ### `npm start`
 
